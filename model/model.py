@@ -30,7 +30,7 @@ class SanzeninMindConfig(PretrainedConfig):
         inference_rope_scaling: bool = False,
         flash_attention: bool = True,
         ############ MoE ############
-        use_moe: bool = False,
+        use_moe: bool = True,
         # [MoE官方适配] MiniMind官方代码使用 num_experts 命名，这里保留你的 n_routed_experts 并增加兼容别名。
         num_experts: int = None,
         num_experts_per_tok: int = 2,
