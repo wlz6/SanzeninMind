@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local editor / agent state
+.claude/
+.vscode/
+
+# Follow-along reference project
+MokioMind/
+
+# Notes and images are kept local
+*.md
+!README.md
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.excalidraw
+_shared_experts:
