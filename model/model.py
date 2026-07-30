@@ -373,6 +373,7 @@ class SanzeinMindBlock(nn.Module):
 class SanzeninMindModel(nn.Module):
     def __init__(self,config:SanzeninMindConfig) -> None:
         super().__init__()
+        config.head_dim=config.hidden_size//config.num_attention_heads
         self.vocab_size=config.vocab_size
         self.num_hidden_layers=config.num_hidden_layers
         self.embed_tokens=nn.Embedding(config.vocab_size,config.hidden_size)
@@ -383,14 +384,14 @@ class SanzeninMindModel(nn.Module):
         self.norm=RMSNorm(config.hidden_size,config.rms_norm_eps)
 
         #Rope预计算
-        self.freqs_cos,self.freqs_sin=precompute_freqs_cis(
+        freqs_cos,freqs_sin=precompute_freqs_cis(
             dim=config.hidden_size//config.num_attention_heads,
             end=config.max_position_embeddings,
             rope_base=config.rope_theta,
             rope_scaling=config.rope_scaling
         )
-        self.register_buffer("freqs_cos",self.freqs_cos)
-        self.register_buffer("freqs_sin",self.freqs_sin)
+        self.register_buffer("freqs_cos",freqs_cos)
+        self.register_buffer("freqs_sin",freqs_sin)
     
     def forward(
             self,
@@ -408,7 +409,7 @@ class SanzeninMindModel(nn.Module):
             start_pos=(
                 past_key_values[0][0].shape[1] if past_key_values[0] is not None else 0 #KV Cache的形状 [batch_size, cached_seq_len, num_key_value_heads, head_dim]
             )
-            hidden_states=self.dropout(self.embded_tokens(input_ids))
+            hidden_states=self.dropout(self.embed_tokens(input_ids))
             position_embeddings=(
                 self.freqs_cos[start_pos:start_pos+seq_len],
                 self.freqs_sin[start_pos:start_pos+seq_len]
@@ -419,7 +420,7 @@ class SanzeninMindModel(nn.Module):
                 hidden_states,present=layer(
                     hidden_states,
                     position_embeddings,
-                    past_key_value=past_key_values,
+                    past_key_value=past_key_value,
                     use_cache=use_cache,
                     attention_mask=attention_mask,
                 )
